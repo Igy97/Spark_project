@@ -1,0 +1,328 @@
+{{#partial "naslov"}}Osobe{{/partial}}
+{{#partial "header"}}
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/all.css">
+{{/partial}}
+{{#partial "sadrzaj"}}
+ <header>
+    <ul> 
+        <li><a href="#" id="aktivni"><i class="fas fa-home"></i>Početna</a></li>
+        <li><a href="/editovanje"><i class="fas fa-user"></i>Editovanje osoba</a></li>
+        <li><a href="/dodavanje"><i class="fas fa-users"></i>Dodavanje novih osoba</a></li>
+    </ul>
+  </header>
+  <h1>Pretrazi osobe:</h1>
+    <form>
+        <div class="input">
+            Unesite ime ili prezime osobe:
+            <input type="text" id="unosimena">
+            <a onclick="filtriraj1()" class="dugme">Filtriraj</a>
+        </div>
+        
+        <div class="input">
+            <label>Broj jezika koji osoba govori:</label>
+            <input type="text" id="godine1">
+            do
+            <input type="text" id="godine2">
+            <a onclick="filtriraj2_filtriraj3('godine1', 'godine2', 'filtriranje2')" class="dugme">Filtriraj</a>
+        </div> 
+
+        <div class="input">
+                <label>Id osobe:</label>
+                <input type="text" id="identifikator1">
+                do
+                <input type="text" id="identifikator2">
+                <a onclick="filtriraj2_filtriraj3('identifikator1', 'identifikator2', 'filtriranje3')" class="dugme">Filtriraj</a>
+        </div> 
+
+        <div class="input">
+            <label>Pol osobe:</label>
+            <input type="radio" name="pol" value="Muški" id="muski">Muški
+            <input type="radio" name="pol" value="Ženski" id="zenski">Ženski
+            <a onclick="filtriraj4()" class="dugme">Filtriraj</a>
+        </div>
+
+      
+
+         
+    </form>
+
+    <h1>Prikaz osoba:</h1>
+    
+ 
+
+
+    <div id="sadrzaj">   
+        {{#if osobe}}
+            {{#each osobe}}
+                 <table cellspacing="3" onclick="post('/editovanje', {id: {{this.id}} })">
+                    <tr class="ime">
+                        <td><p>Ime:</p></td>
+                        <td colspan="3"><p>{{this.firstName}}</p></td>             
+                    </tr>
+
+                    <tr class="prezime">    
+                        <td><p>Prezime:</p></td>
+                        <td colspan="3"><p>{{this.lastName}}</p></td>      
+                    </tr>
+
+                    <tr class="treci_red">
+                        <td>
+                            <p>Id:</p>            
+                        </td>
+
+                        <td>
+                            <p>Email:</p>            
+                        </td>
+
+                        <td>
+                            <p>Pol:</p>            
+                        </td>
+
+                        <td>
+                            <p>Jezici:</p>            
+                        </td>
+                    </tr>
+
+                    <tr class="cetvrti_red">
+                        <td>
+                            <p>{{this.id}}</p>            
+                        </td>
+
+                        <td>
+                            <p>{{this.email}}</p>            
+                        </td>
+
+                        <td>
+                            <p>{{this.gender}}</p>            
+                        </td>
+
+                        <td>
+                            {{#if this.language}}
+                                <textarea name="text" rows="3"  wrap="soft" id="jezici" disabled>{{#each this.language}}{{this.name}},&#13;&#10;{{/each}}</textarea>             
+                            {{/if}}                
+                        </td>
+                    </tr>
+                </table>
+            {{/each}}
+        {{/if}}    
+    </div>
+{{/partial}}
+
+{{#partial "dodatno"}}
+    <script src="javascript/jquery.js"></script>
+    <script src="javascript/redirektovanje.js"></script>
+    <script>
+
+        function filtriraj1()
+        {
+            let unos = document.getElementById("unosimena");
+            if(unos.value.length == 0)
+            {
+                alert("Niste uneli nista!");
+                return;
+            } 
+            let podaci = {
+                "unos":unos.value,
+            }
+            $.ajax({
+                 url:"/api/filtriranje1",
+                 method:"POST",
+                 data:podaci,
+                 success:function(response)
+                 {
+                    nacrtaj(JSON.parse(response));     
+                 }           
+            })  
+            unos.value = "";
+        }
+
+        function filtriraj2_filtriraj3(element1, element2, tip)
+        {    
+            let elemenat1 = document.getElementById(element1);
+            let elemenat2 = document.getElementById(element2);
+            let broj1 = parseInt(elemenat1.value);
+            let broj2 = parseInt(elemenat2.value);
+
+            if(elemenat1.value.length == 0 || isNaN(broj1))
+            {
+                alert("Nepravilan unos za prvi broj!");
+                elemenat1.value = "";
+                return;
+            }
+              
+            if(elemenat2.value.length == 0 || isNaN(broj2))
+            {
+                alert("Nepravilan unos za drugi broj!");
+                elemenat1.value = "";
+                return;
+            }
+
+            if(broj1 > broj2)
+            {
+                alert("Broj1 mora da bude manji od Broja2!");
+                elemenat1.value = "";
+                elemenat2.value = "";
+                return;
+            } 
+
+            
+            let podaci = {
+                "tip":tip,
+                "elemenat1":elemenat1.value,
+                "elemenat2":elemenat2.value
+            }
+
+             $.ajax({
+                 url:"/api/filtriranje2_filtriranje3",
+                 method:"POST",
+                 data:podaci,
+                 success:function(response)
+                 {
+                    nacrtaj(JSON.parse(response));     
+                 }           
+            })  
+            elemenat1.value = "";
+            elemenat2.value = "";    
+        }
+
+        function filtriraj4()
+        {
+            let muski = document.getElementById("muski");
+            let zenski = document.getElementById("zenski");
+            let izlaz = "";
+            if(muski.checked == false && zenski.checked == false)
+            {
+                alert("Izaberite pol!");
+                return;
+            }
+            if(muski.checked == true) izlaz = muski.value;
+            else izlaz = zenski.value;
+     
+            let podaci = {
+                "izlaz":izlaz,
+            }
+
+            $.ajax({
+                 url:"/api/filtriranje4",
+                 method:"POST",
+                 data:podaci,
+                 success:function(response)
+                 {
+                    nacrtaj(JSON.parse(response));     
+                 }           
+            })  
+        }
+
+         function filtriraj5()
+        {
+            let muski = document.getElementById("asc");
+            let zenski = document.getElementById("dsc");
+            let izlaz = "";
+            if(muski.checked == false && zenski.checked == false)
+            {
+                alert("Izaberite!");
+                return;
+            }
+            if(muski.checked == true) izlaz = muski.value;
+            else izlaz = zenski.value;
+     
+            let podaci = {
+                "izlaz":izlaz,
+            }
+
+            $.ajax({
+                 url:"/api/filtriranje5",
+                 method:"POST",
+                 data:podaci,
+                 success:function(response)
+                 {
+                    nacrtaj(JSON.parse(response));     
+                 }           
+            })  
+        }
+
+          function funkcija(element)
+          {
+            let izlaz = element.innerHTML;
+            
+            let podaci = {
+                "izlaz":izlaz,
+            }
+
+            $.ajax({
+                 url:"/api/filtriranje5",
+                 method:"POST",
+                 data:podaci,
+                 success:function(response)
+                 {
+                    nacrtaj(JSON.parse(response));     
+                 }           
+            })  
+          }
+
+        
+        
+
+     
+
+    
+        function nacrtaj(osobe)
+        {
+            let sadrzaj = document.getElementById("sadrzaj");
+            let ispis = "<div id='sadrzaj'>";
+            for(let o of osobe)
+            {
+                ispis+=`
+                <table cellspacing="3" onclick="post('/editovanje', {id: ${o.id} })">
+                    <tr class="ime">
+                        <td><p>Ime:</p></td>
+                        <td colspan="3"><p>${o.firstName}</p></td>             
+                    </tr>
+                    <tr class="prezime">    
+                        <td><p>Prezime:</p></td>
+                        <td colspan="3"><p>${o.lastName}</p></td>      
+                    </tr>
+                    <tr class="treci_red">
+                        <td>
+                            <p>Id:</p>            
+                        </td>
+
+                        <td>
+                            <p>Email:</p>            
+                        </td>
+
+                        <td>
+                            <p>Pol:</p>            
+                        </td>
+
+                        <td>
+                            <p>Jezici:</p>            
+                        </td>
+                    </tr>
+                    <tr class="cetvrti_red">
+                        <td>
+                            <p>${o.id}</p>            
+                        </td>
+
+                        <td>
+                            <p>${o.email}</p>            
+                        </td>
+
+                        <td>
+                            <p>${o.gender}</p>            
+                        </td>
+                        <td>
+                            <textarea name="text" rows="3"  wrap="soft" id="jezici" disabled>`;
+                for(let j of o.language)
+                {
+                    ispis+=`${j.name},&#13;&#10`;
+                }
+                ispis+=`</textarea></td></tr></table>`;   
+            }
+            sadrzaj.innerHTML=ispis;
+        }
+    </script>
+{{/partial}}
+
+{{> layout.hbs}}

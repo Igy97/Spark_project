@@ -1,0 +1,183 @@
+{{#partial "naslov"}}Osobe{{/partial}}
+{{#partial "header"}}
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/all.css">
+    <link rel="stylesheet" href="/css/editovanje.css">
+{{/partial}}
+<body>
+    {{#partial "sadrzaj"}}
+    <header>
+        <ul> 
+            <li><a href="/"><i class="fas fa-home"></i>Početna</a></li>
+            <li><a href="#" id="aktivni"><i class="fas fa-user"></i>Editovanje osoba</a></li>
+            <li><a href="/dodavanje"><i class="fas fa-users"></i>Dodavanje novih osoba</a></li>
+        </ul>
+    </header>
+    <h1>Izaberite osobu:</h1>
+    <form>
+        <select id="osoba" onchange="funkcija_za_prikaz_osobe()">
+                {{#if osoba}}
+                    <option value="{{osoba.id}}">Id:{{osoba.id}} Ime:{{osoba.firstName}} Prezime:{{osoba.lastName}} Email:{{osoba.email}}</option>
+                {{else}}
+                    <option value="null">Izabrana osoba:</option>
+                {{/if}}        
+            {{#each osobe}}
+                <option value="{{this.id}}">Id:{{this.id}} Ime:{{this.firstName}} Prezime:{{this.lastName}} Email:{{this.email}}</option>
+            {{/each}}
+        </select>
+    </form>
+
+    <h1>Izmena podataka:</h1>
+
+    <div id="prikazosobe">
+                <table cellspacing="3">
+                    <tbody><tr class="ime">
+                        <td><p>Ime:</p></td>
+                        <td colspan="3"><input type="text" id="ime" autocomplete="off"></td>             
+                    </tr>
+                    <tr class="prezime">    
+                        <td><p>Prezime:</p></td>
+                        <td colspan="3"><input type="text" id="prezime" autocomplete="off"></td>      
+                    </tr>
+                    <tr class="treci_red">
+                        <td>
+                            <p>Id:</p>            
+                        </td>
+
+                        <td>
+                            <p>Email:</p>            
+                        </td>
+
+                        <td>
+                            <p>Pol:</p>            
+                        </td>
+
+                        <td>
+                            <p>Jezici:</p>            
+                        </td>
+                    </tr>
+                    <tr class="cetvrti_red">
+                        <td>
+                            <p id="identifikator"></p>         
+                        </td>
+
+                        <td>
+                            <input type="text" id="email" autocomplete="off">          
+                        </td>
+
+                        <td>
+                            <input type="text" id="pol" autocomplete="off">         
+                        </td>
+                        <td>
+                            <textarea name="text" rows="3"  wrap="soft" id="jezici"></textarea>
+                        </td>
+                    </tr>
+            </table>  
+        </div> 
+        
+        <button type="button" onclick="funkcija_za_editovanje_osobe(this)" value="Izmeni">Izmeni</button>
+        <button type="button" onclick="funkcija_za_editovanje_osobe(this)" value="Obriši">Obriši</button>
+
+     
+        {{/partial}}
+        {{#partial "dodatno"}}
+            <script src="javascript/jquery.js"></script>
+            <script src="javascript/redirektovanje.js"></script>
+            <script>
+                let ime = document.getElementById("ime");
+                let prezime = document.getElementById("prezime");
+                let identifikator = document.getElementById("identifikator");
+                let email = document.getElementById("email");
+                let pol = document.getElementById("pol");
+                let jezici  = document.getElementById("jezici");
+                let option_box = document.getElementById("osoba");
+                function funkcija_za_prikaz_osobe()
+                {
+                    let podaci = {"id":option_box.value};
+                    $.ajax({
+                            url:"/api/prikaz_jedne_osobe",
+                            method:"POST",
+                            data:podaci,
+                            success:function(response)
+                            {
+                             let element = JSON.parse(response);
+                             ime.value = element.firstName;
+                             prezime.value  = element.lastName;
+                             identifikator.innerText = element.id;
+                             email.value  = element.email
+                             pol.value  = element.gender;
+                             jezici.value = "";
+                             for(let i of element.language) jezici.value+=i.name + ",\n";
+                            }           
+                    })  
+                }
+                if(option_box.value != "null") funkcija_za_prikaz_osobe();
+
+                function funkcija_za_editovanje_osobe(dugme)
+                {     
+                    let izmeni_osobu; 
+                    if( identifikator.textContent == "")
+                    {
+                        alert("Izaberi osobu!\n");
+                        return;
+                    }
+                    else if(dugme.value == "Izmeni") izmeni_osobu = true;    
+                    else izmeni_osobu = false;
+
+                    if(izmeni_osobu)
+                    {
+                        let izlaz = "";
+                        if(ime.value.length == 0) izlaz+="Niste uneli ime!\n";
+                        if(prezime.value.length == 0) izlaz+="Niste uneli prezime!\n";
+                        if(email.value.length == 0) izlaz+="Niste uneli email!\n";
+                        else if(email.value.indexOf("@") <= -1) izlaz+="Nepravilan unos email-a!\n";
+                        if(pol.value.length == 0)izlaz+="Niste uneli pol!\n"; 
+                        else if(pol.value != "Muški" && pol.value != "Ženski") izlaz+="Nepravilan unos pola!\n"; 
+                        if(jezici.value.length<1) izlaz+="Niste uneli jezike koje osoba govori!\n";
+                        if(izlaz.length != 0)
+                        {
+                            alert(izlaz);
+                            return;
+                        } 
+                    }
+                   
+
+                    let podaci = {"identifikator":identifikator.textContent,"ime":ime.value,"prezime":prezime.value,"email":email.value,"pol":pol.value,"jezici":jezici.value,"izmeni_osobu":izmeni_osobu};
+                    $.ajax({
+                            url:"/editovanje_jedne_osobe",
+                            method:"POST",
+                            data:podaci,
+                            success:function(response)
+                            { 
+                                if(response == "id") alert("Id nije dobar!");
+                                else
+                                {
+                                    if(izmeni_osobu == true)
+                                    {
+                                        if(response == "jeste")
+                                        {
+                                            option_box.options[option_box.selectedIndex].text = "Id:" + podaci.identifikator + " Ime:" + podaci.ime + " Prezime:"+ podaci.prezime + " Email:" + podaci.email;
+                                            alert("Uspesno ste izmenili osobu!");
+
+                                        }
+                                        else if(response == "nije") alert("Niste promenili podatke datoj osobi!");
+                                    }
+                                    else
+                                    {
+                                        if(response == "jeste")
+                                        {
+                                            alert("Uspesno ste obrisali osobu!");
+                                            post('/editovanje');
+                                        }
+                                        else if(response == "nije") alert("Niste obrisali osobu!");
+                                    }
+                                }               
+                            }                          
+                    }) 
+                               
+                }             
+            </script>
+        {{/partial}}
+    </body>
+</html>
+{{> layout.hbs}}

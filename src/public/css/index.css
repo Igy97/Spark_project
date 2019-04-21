@@ -1,0 +1,166 @@
+body
+{
+    margin: 0;
+}
+
+header
+{
+    background:rgb(30, 204, 204); 
+}
+
+header ul
+{
+    list-style-type: none;
+    margin: 0;
+    padding-left: 20px;
+}
+
+header ul li a
+{
+    font-size: 22px;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+}
+
+header ul li a i
+{
+    margin-right: 5px;
+}
+
+header ul li:first-child a i
+{
+    margin-right: 0;
+}
+
+header ul li a:hover
+{
+    color: darkmagenta;
+    text-decoration: underline;
+}
+
+#aktivni
+{
+    color: darkmagenta;
+    text-decoration: underline;
+}
+
+header ul li
+{
+    float:left;
+    margin-right: 3%;
+    padding: 25px 0px;
+    
+}
+
+header ul::after
+{
+    clear: both;
+    display: block;
+    content: "";
+}
+
+
+h1
+{
+    background: mediumaquamarine;
+    margin: 0;
+    padding: 20px;
+}
+
+table
+{
+    table-layout: fixed;   
+    width: 90%;  
+    background: black;
+    margin: 10px auto;
+}
+
+
+table:hover tr td
+{
+    background:yellow;
+    cursor:pointer;
+}
+
+td
+{
+    text-align: center;
+    font-weight: bold;
+    background:mediumaquamarine;
+    transition: 0.5s;  
+}
+
+table::hover tr td
+{
+    background:yellow; 
+}
+
+.ime td, .prezime td
+{
+    font-size: 23px;
+}
+
+.treci_red td
+{
+font-size: 19px;
+}
+
+.cetvrti_red td
+{
+    font-size: 16px;
+}
+
+.input 
+{
+font-size: 22px;
+padding: 12px 20px;
+}
+
+ .dugme
+{
+    width: 140px;
+    padding: 8px;
+    background: mediumaquamarine;
+    display: inline-block;
+    border: none;
+    font-size: 20px;
+    text-decoration: none;
+    text-align: center;
+    color:black;
+}
+
+.dugme:active
+{
+color:white;
+background: rgb(30, 204, 204);
+}
+
+#input button:focus {outline:0;}
+
+
+#sadrzaj
+{
+    margin-top: 30px;
+}
+
+.cetvrti_red textarea
+{
+    display: block;
+    margin: 0 auto;
+    width: 58%;
+    font-size: 16px;
+    resize: none;
+    font-weight: bold;
+    background: transparent;
+    text-align: center;
+    outline: 0;
+    border: none;
+}
+
+textarea:disabled
+{
+    color:black;
+}
+
+
